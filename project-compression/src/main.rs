@@ -14,9 +14,22 @@ fn main() {
         eprint!("usage : `source` `target`");
         return;
     }
-    let input = BufReader::new(File::open(args().nth(1).unwrap()).unwrap());
+    let mut input = BufReader::new(File::open(args().nth(1).unwrap()).unwrap());
     let output = File::create(args().nth(2).unwrap()).unwrap();
 
     let mut encoder = GzEncoder::new(output, Compression::default());
     let start = Instant::now();
+
+    match copy(&mut input, &mut encoder) {
+        Ok(_) => println!("Compression completed in {:?}", start.elapsed()),
+        Err(err) => eprintln!("Compression failed: {}", err),
+    }
+
+    let output = encoder.finish().unwrap();
+    println!(
+        "target len : {:?}",
+        input.get_ref().metadata().unwrap().len()
+    );
+    println!("target len : {:?}", output.metadata().unwrap().len());
+    println!("elapsed time : {:?}", start.elapsed());
 }
