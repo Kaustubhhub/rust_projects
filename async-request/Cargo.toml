@@ -1,0 +1,9 @@
+[package]
+edition = "2021"
+name = "async-request"
+version = "0.1.0"
+
+[dependencies]
+error-chain = "0.12.4"
+reqwest = {version = "0.10", features = ["blocking", "json"]}
+tokio = {version = "0.2.3", features = ["full"]}
