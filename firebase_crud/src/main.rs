@@ -26,17 +26,30 @@ async fn main() {
     let firebase = Firebase::new("https://fir-rustcrud-default-rtdb.firebaseio.com/")
         .expect("unable to connect to firebase database");
 
-    let response: Response = set_user(&firebase_client, &user).await?;
+    let response: Response = set_user(&firebase, &user).await;
 }
 
 async fn set_user(firebase_client: &Firebase, user: &User) -> Response {
     let firebase = firebase_client.at("users");
     let _users = firebase.set::<User>(&user).await;
-    return;
+    return string_to_reponse(&_users.unwrap().data);
 }
-async fn get_user(firebase_client: &Firebase, user: &User) -> Response {}
-async fn update_user(firebase_client: &Firebase, user: &User) -> Response {}
-async fn delete_user(firebase_client: &Firebase, user: &User) -> Response {}
+async fn get_user(firebase_client: &Firebase, id: &String) -> User {
+    let firebase = firebase_client.at("users").at(&id);
+    let user = firebase.get::<User>().await;
+    return user.unwrap();
+}
+async fn update_user(firebase_client: &Firebase, id: &String, user: &User) -> User {
+    let firebase = firebase_client.at("users").at(&id);
+    let _user = firebase.update::<User>(&user);
+
+    return string_to_user(&_user.await.unwrap().data);
+}
+async fn delete_user(firebase_client: &Firebase, id: &String) -> Response {
+    let firebase = firebase_client.at("users").at(&id);
+    let _user = firebase.delete();
+    return string_to_reponse(&_user.await.unwrap().data);
+}
 
 fn string_to_reponse(s: &str) -> Response {
     serde_json::from_str(s).unwrap()
